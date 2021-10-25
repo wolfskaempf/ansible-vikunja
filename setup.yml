@@ -1,0 +1,82 @@
+---
+- hosts: all
+  become: true
+  vars_files:
+    - vars/default.yml
+  roles:
+    - {role: bobbyrenwick.pip}
+
+  tasks:
+    - name: Ensure APT usage dependencies are installed
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - gnupg
+        state: present
+        update_cache: yes
+
+    - name: Ensure Docker's APT key is trusted
+      apt_key:
+        url: "https://download.docker.com/linux/{{ ansible_distribution|lower }}/gpg"
+        id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+        state: present
+      register: add_repository_key
+      ignore_errors: true
+
+    - name: Ensure Docker repository is enabled
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release }} stable"
+        state: present
+        update_cache: yes
+
+    - name: Ensure Docker is installed
+      apt:
+        name:
+          - "docker-ce"
+          - "python{{'3' if ansible_python.version.major == 3 else ''}}-docker"
+          - "docker-ce-cli"
+          - "containerd.io"
+        state: latest
+
+    - name: Ensure docker-compose is installed
+      pip:
+        name: docker-compose
+
+    - name: Ensure /srv exists
+      file:
+        path: /srv
+        state: directory
+
+    - name: Ensure /srv/vikunja exists
+      file:
+        path: /srv/vikunja
+        state: directory
+
+    - name: Ensure docker-compose.yml is present
+      ansible.builtin.template:
+        src: templates/docker-compose.yml
+        dest: /srv/vikunja/docker-compose.yml
+    
+    - name: Ensure nginx.conf is present
+      ansible.builtin.template:
+        src: templates/nginx.conf
+        dest: /srv/vikunja/nginx.conf
+
+    - name: Ensure README.md is present
+      ansible.builtin.template:
+        src: templates/README.md
+        dest: /srv/vikunja/README.md
+
+    - name: Ensure service is stopped
+      community.docker.docker_compose:
+        project_src: /srv/vikunja
+        state: absent
+    
+    - name: Ensure service is started
+      community.docker.docker_compose:
+        project_src: /srv/vikunja
+      register: docker_compose_output
+
+    - ansible.builtin.debug:
+        var: docker_compose_output

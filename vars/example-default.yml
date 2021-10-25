@@ -1,0 +1,5 @@
+# It is strongly recommended to use ansible-vault to secure these values https://docs.ansible.com/ansible/latest/user_guide/vault.html
+mariadb_root_password: changeme-Dow0Ciep6uaX3ooTaphaeshahchae0chie0oowaezoyuthee8ieyib0Afeeseep2
+mariadb_user: vikunja
+mariadb_user_password: changeme-ooRiu2Lei1hie7Ke8quaiphi8yohguu9ie7niuxi7leezi1QuuGi7uN9angoh6ke
+mariadb_db_name: vikunja

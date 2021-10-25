@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  db:
+    image: mariadb:10
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: {{ mariadb_root_password }}
+      MYSQL_USER: {{ mariadb_user }}
+      MYSQL_PASSWORD: {{ mariadb_user_password }}
+      MYSQL_DATABASE: {{ mariadb_db_name }}
+    volumes:
+      - ./db:/var/lib/mysql
+    restart: unless-stopped
+  api:
+    image: vikunja/api
+    environment:
+      VIKUNJA_DATABASE_HOST: db
+      VIKUNJA_DATABASE_PASSWORD: {{ mariadb_user_password }}
+      VIKUNJA_DATABASE_TYPE: mysql
+      VIKUNJA_DATABASE_USER: {{ mariadb_user }}
+      VIKUNJA_DATABASE_DATABASE: {{ mariadb_db_name }}
+    volumes: 
+      - ./files:/app/vikunja/files
+    depends_on:
+      - db
+    restart: unless-stopped
+  frontend:
+    image: vikunja/frontend
+    restart: unless-stopped
+  proxy:
+    image: nginx
+    ports:
+      - 8022:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api
+      - frontend
+    restart: unless-stopped
