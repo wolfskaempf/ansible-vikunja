@@ -3,3 +3,4 @@ mariadb_root_password: changeme-Dow0Ciep6uaX3ooTaphaeshahchae0chie0oowaezoyuthee
 mariadb_user: vikunja
 mariadb_user_password: changeme-ooRiu2Lei1hie7Ke8quaiphi8yohguu9ie7niuxi7leezi1QuuGi7uN9angoh6ke
 mariadb_db_name: vikunja
+python: python3

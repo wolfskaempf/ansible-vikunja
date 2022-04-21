@@ -3,6 +3,12 @@
   become: true
   vars_files:
     - vars/default.yml
+  pre_tasks:
+    - name: Ensure python3-distutils is present
+      apt:
+        name: python3-distutils
+        state: present
+        update_cache: yes
   roles:
     - {role: bobbyrenwick.pip}
 
